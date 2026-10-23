@@ -1,0 +1,244 @@
+{
+  "executed_at": "2026-10-23T16:45:59.521347+00:00",
+  "mode": "live-local-http-form-login-pkce",
+  "checks": [
+    {
+      "check": "MCP 401 challenge -> protected-resource metadata -> Keycloak discovery",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct API and MCP login represent the same demo user",
+      "result": "PASS"
+    },
+    {
+      "check": "Authorized deterministic reset",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct API token reads fixed seed data",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct API token creates a ticket -> 201",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct API token updates a ticket -> 200",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct write is persisted in the API store",
+      "result": "PASS"
+    },
+    {
+      "check": "Real Keycloak Standard V2 Token Exchange succeeds",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchanged token preserves user subject",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchanged token has exactly the API read role (supplementary claims check)",
+      "result": "PASS"
+    },
+    {
+      "check": "The exact exchanged token reads real API data",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: POST /tickets -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: unchanged after POST /tickets",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: PATCH /tickets/1 -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: unchanged after PATCH /tickets/1",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: DELETE /tickets/1 -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: unchanged after DELETE /tickets/1",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: POST /demo/reset -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Exact exchanged token B: unchanged after POST /demo/reset",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP initialize and initialized notification succeed over HTTP",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP publishes exactly the two curated tools",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP list_tickets returns the ticket just written through the actual API",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP get_ticket matches the actual API record exactly",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects invalid or missing input: list_tickets url",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects invalid or missing input: list_tickets limit",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects invalid or missing input: get_ticket id",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects invalid or missing input: get_ticket id",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects invalid or missing input: get_ticket id",
+      "result": "PASS"
+    },
+    {
+      "check": "Token A at API rejected for wrong audience -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct API token at MCP rejected for wrong audience -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchanged API token B at MCP rejected for wrong audience -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "missing token at API -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "missing token at MCP -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "malformed token at API -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "malformed token at MCP -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "bad signature token at API -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "bad signature token at MCP -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchange handles unauthorized scope request: tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Keycloak denies scope elevation: tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchange handles unauthorized scope request: tickets.read tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Keycloak denies scope elevation: tickets.read tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchange handles unauthorized scope request: offline_access tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Keycloak denies scope elevation: offline_access tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Exchange handles unauthorized scope request: roles tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Keycloak denies scope elevation: roles tickets.write",
+      "result": "PASS"
+    },
+    {
+      "check": "Second user context remains distinct across exchange",
+      "result": "PASS"
+    },
+    {
+      "check": "Second user can use MCP without cross-user token reuse",
+      "result": "PASS"
+    },
+    {
+      "check": "Valid MCP audience without MCP role -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Valid API audience without API role -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Valid API audience without write role -> 403",
+      "result": "PASS"
+    },
+    {
+      "check": "Real expired Keycloak token at MCP -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "Real expired Keycloak token with correct API audience -> 401",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects untrusted browser Origin",
+      "result": "PASS"
+    },
+    {
+      "check": "MCP rejects untrusted Host",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct API token deletes -> 204",
+      "result": "PASS"
+    },
+    {
+      "check": "Direct deletion actually removes the ticket",
+      "result": "PASS"
+    },
+    {
+      "check": "No issued tokens or local secrets in MCP schemas or results",
+      "result": "PASS"
+    },
+    {
+      "check": "No issued tokens or local secrets in application logs",
+      "result": "PASS"
+    },
+    {
+      "check": "Acceptance run leaves the three fixed seed tickets",
+      "result": "PASS"
+    }
+  ],
+  "total": 59,
+  "passed": 59
+}

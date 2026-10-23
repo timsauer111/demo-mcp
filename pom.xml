@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-parent</artifactId><version>3.5.16</version><relativePath/></parent>
+  <groupId>com.example.mcpdemo</groupId><artifactId>mcp-demo</artifactId><version>0.1.0-SNAPSHOT</version><packaging>pom</packaging>
+  <name>Local MCP least-privilege demo</name>
+  <modules><module>security-common</module><module>ticket-api</module><module>mcp-server</module></modules>
+  <properties><java.version>21</java.version><mcp.version>0.18.5</mcp.version></properties>
+  <dependencyManagement><dependencies>
+    <dependency><groupId>io.modelcontextprotocol.sdk</groupId><artifactId>mcp-bom</artifactId><version>${mcp.version}</version><type>pom</type><scope>import</scope></dependency>
+  </dependencies></dependencyManagement>
+</project>

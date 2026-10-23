@@ -1,0 +1,14 @@
+server:
+  address: 127.0.0.1
+  port: 8081
+  error:
+    include-message: never
+    include-stacktrace: never
+spring:
+  application:
+    name: ticket-api
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+demo:
+  issuer: http://localhost:8080/realms/mcp-demo

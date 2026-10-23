@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: Local synthetic ticket API
+  version: 0.1.0
+  description: Client roles in resource_access.tickets-api.roles control access, not the scope string.
+servers:
+  - url: http://localhost:8081
+security:
+  - keycloak: []
+paths:
+  /tickets:
+    get:
+      summary: List tickets (tickets.read)
+      parameters:
+        - {name: status, in: query, schema: {$ref: '#/components/schemas/Status'}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        '200':
+          description: Filtered, paginated tickets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tickets: {type: array, items: {$ref: '#/components/schemas/Ticket'}}
+                  offset: {type: integer}
+                  limit: {type: integer}
+                  total: {type: integer}
+        '400': {$ref: '#/components/responses/Invalid'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      summary: Create ticket (tickets.write)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateTicket'}
+      responses:
+        '201':
+          description: Created ticket
+          content: {application/json: {schema: {$ref: '#/components/schemas/Ticket'}}}
+        '400': {$ref: '#/components/responses/Invalid'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /tickets/{id}:
+    parameters:
+      - {name: id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+    get:
+      summary: Read ticket (tickets.read)
+      responses:
+        '200':
+          description: Ticket
+          content: {application/json: {schema: {$ref: '#/components/schemas/Ticket'}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {description: Ticket not found}
+    patch:
+      summary: Partially update ticket (tickets.write)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                title: {type: string, minLength: 1, maxLength: 120, pattern: '.*\S.*'}
+                description: {type: string, maxLength: 2000}
+                status: {$ref: '#/components/schemas/Status'}
+      responses:
+        '200':
+          description: Updated ticket
+          content: {application/json: {schema: {$ref: '#/components/schemas/Ticket'}}}
+        '400': {$ref: '#/components/responses/Invalid'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {description: Ticket not found}
+    delete:
+      summary: Delete ticket (tickets.write)
+      responses:
+        '204': {description: Deleted}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {description: Ticket not found}
+  /demo/reset:
+    post:
+      summary: Restore the three synthetic seed tickets (tickets.write)
+      responses:
+        '204': {description: Reset}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+components:
+  securitySchemes:
+    keycloak:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:8080/realms/mcp-demo/protocol/openid-connect/auth
+          tokenUrl: http://localhost:8080/realms/mcp-demo/protocol/openid-connect/token
+          scopes:
+            tickets.read: Read tickets (client role also required)
+            tickets.write: Write tickets (client role also required)
+  responses:
+    Invalid: {description: Invalid input}
+    Unauthorized: {description: Missing or invalid token, issuer, audience or lifetime}
+    Forbidden: {description: Required API client role missing}
+  schemas:
+    Status: {type: string, enum: [OPEN, IN_PROGRESS, CLOSED]}
+    CreateTicket:
+      type: object
+      additionalProperties: false
+      required: [title, description, status]
+      properties:
+        title: {type: string, minLength: 1, maxLength: 120, pattern: '.*\S.*'}
+        description: {type: string, maxLength: 2000}
+        status: {$ref: '#/components/schemas/Status'}
+    Ticket:
+      type: object
+      additionalProperties: false
+      required: [id, title, description, status]
+      properties:
+        id: {type: integer, format: int64, minimum: 1}
+        title: {type: string, minLength: 1, maxLength: 120, pattern: '.*\S.*'}
+        description: {type: string, maxLength: 2000}
+        status: {$ref: '#/components/schemas/Status'}

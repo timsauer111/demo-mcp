@@ -1,0 +1,16 @@
+server:
+  address: 127.0.0.1
+  port: 8082
+  error:
+    include-message: never
+    include-stacktrace: never
+spring:
+  application:
+    name: ticket-mcp
+logging:
+  level:
+    io.modelcontextprotocol: WARN
+demo:
+  issuer: http://localhost:8080/realms/mcp-demo
+  api-base: http://localhost:8081
+  client-secret: ${MCP_CLIENT_SECRET}
