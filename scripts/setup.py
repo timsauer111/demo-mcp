@@ -42,12 +42,12 @@ def realm_config(values):
         return {'name': name, 'protocol': 'openid-connect', 'attributes': {'include.in.token.scope': 'true'},
                 'protocolMappers': [roles(client)]}
 
-    def public(client, scopes, extra=None):
+    def public(client, scopes, extra=None, callback="http://127.0.0.1:8765/callback", optional=()):
         return {'clientId': client, 'enabled': True, 'protocol': 'openid-connect', 'publicClient': True,
                 'standardFlowEnabled': True, 'directAccessGrantsEnabled': False,
                 'serviceAccountsEnabled': False, 'fullScopeAllowed': False,
-                'redirectUris': ['http://127.0.0.1:8765/callback'], 'webOrigins': [],
-                'defaultClientScopes': scopes, 'optionalClientScopes': [],
+                'redirectUris': [callback], 'webOrigins': [],
+                'defaultClientScopes': scopes, 'optionalClientScopes': list(optional),
                 'protocolMappers': resource_mappers(api='tickets.read' in scopes),
                 'attributes': {'pkce.code.challenge.method': 'S256', **(extra or {})}}
 
@@ -56,7 +56,7 @@ def realm_config(values):
                 'firstName': 'Synthetic', 'lastName': name,
                 'email': name + '@example.invalid', 'requiredActions': [],
                 'credentials': [{'type': 'password', 'value': password, 'temporary': False}],
-                'clientRoles': mapping}
+                'clientRoles': mapping, 'realmRoles': ['offline_access'] if name == 'demo' else []}
 
     # Scopes are a finite allowlist. In particular, mcp-server has no optional write scope.
     return {
@@ -81,6 +81,9 @@ def realm_config(values):
              'attributes': {'standard.token.exchange.enabled': 'true',
                             'standard.token.exchange.enableRefreshRequestedTokenType': 'false'}},
             public('mcp-demo-client', ['mcp.access']),
+            public('codex-demo-client', ['mcp.access'],
+                   {'mcp-demo.managed': 'codex-v1', 'client.offline.session.idle.timeout': '1800'},
+                   callback='http://127.0.0.1:8766/callback', optional=['offline_access']),
             public('api-demo-client', ['tickets.read', 'tickets.write']),
             # A two-second lifetime is confined to this negative-test client.
             public('expiry-demo-client', ['mcp.access'], {'access.token.lifespan': '2'}),

@@ -1,0 +1,17 @@
+# Loaded as scoped CLI overrides by ./demo agent. No global config installation.
+mcp_oauth_credentials_store = "keyring"
+
+[mcp_servers.ticket_demo]
+url = "http://localhost:8082/mcp"
+required = true
+scopes = ["mcp.access", "offline_access"]
+# Codex derives resource from protected-resource metadata; an explicit duplicate is rejected by Keycloak.
+enabled_tools = ["list_tickets", "get_ticket"]
+startup_timeout_sec = 30
+tool_timeout_sec = 30
+default_tools_approval_mode = "auto"
+
+[mcp_servers.ticket_demo.oauth]
+client_id = "codex-demo-client"
+callback_url = "http://127.0.0.1:8766/callback"
+callback_port = 8766

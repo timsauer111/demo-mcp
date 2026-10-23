@@ -88,17 +88,22 @@ Für eine wiederholbare Vorführung ohne manuelles Ausfüllen:
 
 Dieser Modus durchläuft denselben Authorization-Code-/PKCE-Fluss einschließlich Keycloak-Loginformular und tatsächlichem Loopback-Callback. Er verwendet **keinen Password Grant** und keine eingefügten Bearer-Tokens. Der reine HTTP-Formulartreiber behandelt Secure-Cookies ausschließlich für `http://localhost:8080` wie ein Browser auf localhost. Der interaktive Modus verwendet den Browser selbst.
 
-#### Externer Agent oder Inspector
+#### Eigenständiger Codex-Agent
 
-Der enthaltene Client ist bereits passend vorregistriert und live geprüft. Für einen anderen Client sind diese Werte relevant:
+Die lokale Codex-CLI kann den MCP-Server direkt über **Streamable HTTP** verwenden. Voraussetzungen: Codex-Modellzugang, Python **3.11+**, laufende Demo und freier Callback-Port **8766**.
 
-- Transport **Streamable HTTP**, Server-URL `http://localhost:8082/mcp`.
-- OAuth-Discovery über die Resource Metadata; Issuer `http://localhost:8080/realms/mcp-demo`, Scope `mcp.access` und S256-PKCE.
-- Public OAuth-Client-ID `mcp-demo-client` hat aktuell ausschließlich den Callback `http://127.0.0.1:8765/callback` registriert. Ein externer Client muss genau diesen Callback unterstützen oder einen eigenen vorregistrierten Public Client mit passender exakter Redirect-URI, denselben MCP-Audience-/Rollenmappings und PKCE bekommen. Das vertrauliche Secret von `mcp-server` gehört nicht in den Agenten.
-- Ein Browserclient, der MCP direkt aufruft, benötigt zusätzlich passende ausdrücklich erlaubte Origin-/CORS-Einstellungen; die aktuelle Demo erlaubt keine beliebigen fremden Browser-Origins. Ein Inspector mit eigener Proxy-Komponente ist ebenfalls separat zu prüfen.
-- Der Client muss auf diesem Mac laufen oder dessen localhost-Netzwerk erreichen können. Ein Cloud-Agent kann dieses lokale `localhost` nicht ohne zusätzliche Netzwerkarchitektur erreichen.
+```sh
+./demo agent setup
+./demo agent list
+./demo agent login
+./demo agent run
+# Lokale MCP-Zugangsdaten später entfernen:
+./demo agent logout
+```
 
-Externe Agenten-/Inspector-Integration ist bisher nicht getestet und nicht automatisch durch Eintragen der URL zugesichert. Die Server- und Keycloak-Konfiguration wurde hierfür nicht erweitert.
+Der echte LLM-Agent ruft `list_tickets` und `get_ticket` ab. Codex übernimmt OAuth-Discovery und Browser-PKCE über den eigenen Public Client `codex-demo-client`; seine Zugangsdaten liegen im Betriebssystem-Schlüsselbund. Die öffentliche Konfiguration in [integrations/codex.toml](integrations/codex.toml) wirkt nur über den Launcher. Globale Codex-Konfiguration wird nicht geändert. API, MCP, Keycloak und PostgreSQL bleiben lokal; die Modellinferenz verwendet den bestehenden OpenAI-Zugang und synthetische Tickets.
+
+[Einrichtung, Rechte, Offline-Refresh, Abmeldung und Fehlerbehebung](integrations/README.md). Der eigene Python-Client bleibt zusätzlich verfügbar. Andere Agenten oder ein MCP Inspector sind nicht mitgeprüft; Cloud-Agenten erreichen dieses localhost ohne zusätzliche Netzwerkarchitektur nicht.
 
 ### 3. Vollständiger Rechtebeweis
 
@@ -181,7 +186,7 @@ Identität und feste Audiences werden unabhängig von rollenabhängigen Scopes g
 
 Tickets: `id`, `title`, `description`, `status` (`OPEN`, `IN_PROGRESS`, `CLOSED`). `list_tickets`: optional `status`, `offset >= 0`, `limit` von 1 bis 100. `get_ticket`: positive ganzzahlige `id`. Schemas und tatsächliche Argumentprüfung schließen fremde URLs, Methoden und Header aus. Tool-Ergebnisse behandeln Ticketinhalt als Daten und enthalten keine Transportkontexte oder Zugangsdaten.
 
-Streamable HTTP läuft zustandslos; jeder geschützte HTTP-Aufruf wird authentifiziert. Eine MCP-Session ersetzt keine OAuth-Prüfung. Token A wird niemals an die API durchgereicht. Es gibt keinen Token-Cache und keine dauerhafte Access-/Refresh-Token-Speicherung im Client oder MCP-Server. Keycloak verwaltet seine regulären Benutzer-/Login-Sessions lokal in PostgreSQL.
+Streamable HTTP läuft zustandslos; jeder geschützte HTTP-Aufruf wird authentifiziert. Eine MCP-Session ersetzt keine OAuth-Prüfung. Token A wird niemals an die API durchgereicht. Die eigenen Python-Clients und der MCP-Server speichern Access-/Refresh-Tokens nicht dauerhaft und führen keinen Token-Cache. Die optionale Codex-Integration nutzt dagegen den Betriebssystem-Schlüsselbund und Offline-Refresh; siehe [Integration](integrations/README.md). Keycloak verwaltet seine regulären Benutzer-/Login-Sessions lokal in PostgreSQL.
 
 ## Versionen, Struktur und Prüfungen
 
@@ -195,7 +200,7 @@ Streamable HTTP läuft zustandslos; jeder geschützte HTTP-Aufruf wird authentif
 | PostgreSQL | 17.11-alpine, Image-Digest in Compose |
 | Im Test ausgehandeltes MCP-Protokoll | 2025-06-18 |
 
-Der SDK-0.18-Zweig passt zum Spring-6-/Boot-3-Stack. Die separate Spring-AI-Schicht ist für diese zwei expliziten Tools nicht erforderlich; der Server verwendet direkt das offizielle Java SDK. Kein LLM-Konto oder Modell-API-Key erforderlich.
+Der SDK-0.18-Zweig passt zum Spring-6-/Boot-3-Stack. Die separate Spring-AI-Schicht ist für diese zwei expliziten Tools nicht erforderlich; der Server verwendet direkt das offizielle Java SDK. Die Basisdemo mit Python-Clients benötigt kein LLM-Konto und keinen Modell-API-Key. Der optionale eigenständige Codex-Agent benötigt einen eingerichteten Modellzugang.
 
 - `security-common/`: JWT-Validatoren und explizite Clientrollen-Zuordnung.
 - `ticket-api/`: REST-API, validierte Eingaben, synchronisierter In-Memory-Speicher, OpenAPI.

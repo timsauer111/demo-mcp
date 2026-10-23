@@ -110,13 +110,15 @@ def main():
                 print(f'localhost:{port}: unavailable')
     elif command == 'test':
         subprocess.run([sys.executable, 'scripts/e2e.py', *sys.argv[2:]], cwd=ROOT, check=True)
+    elif command == 'agent':
+        subprocess.run([sys.executable, 'scripts/agent_client.py', *sys.argv[2:]], cwd=ROOT, check=True)
     elif command == 'api':
         subprocess.run([sys.executable, 'scripts/api_client.py', *sys.argv[2:]], cwd=ROOT, check=True)
     elif command in ['client', 'reset']:
         args = sys.argv[2:] if command == 'client' else ['--reset', *sys.argv[2:]]
         subprocess.run([sys.executable, 'scripts/client.py', *args], cwd=ROOT, check=True)
     else:
-        print('Usage: ./demo setup|build|up|status|api [--headless-login] list|get|create|patch|delete|client [--headless-login] [--ticket ID]|test|reset|stop|down')
+        print('Usage: ./demo setup|build|up|status|api|client|agent|test|reset|stop|down')
 
 
 if __name__ == '__main__':

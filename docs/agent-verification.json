@@ -1,0 +1,35 @@
+{
+  "executed_at": "2026-10-23T18:15:43.956926+00:00",
+  "client": "Codex CLI 0.160.0",
+  "transport": "Streamable HTTP",
+  "login": "real Chromium browser Authorization Code + S256 PKCE",
+  "credential_store": "OS keyring",
+  "global_config_unchanged": true,
+  "llm_agent_executed": true,
+  "access_token_lifespan_seconds": 120,
+  "seconds_since_previous_session_access_before_run": 133,
+  "refresh_after_expiry_verified": true,
+  "offline_session_last_access_advanced": true,
+  "tool_calls": [
+    {
+      "server": "ticket_demo",
+      "tool": "get_ticket",
+      "arguments": {
+        "id": 1
+      },
+      "status": "completed",
+      "structured_result_verified": true
+    },
+    {
+      "server": "ticket_demo",
+      "tool": "list_tickets",
+      "arguments": {
+        "limit": 3
+      },
+      "status": "completed",
+      "structured_result_verified": true
+    }
+  ],
+  "agent_summary": "Ich rufe die beiden Ticket-Werkzeuge ab und fasse ihre tatsächlichen Ergebnisse kurz auf Deutsch zusammen.\nBeide Ticket-Abfragen waren erfolgreich.\n\n- `list_tickets(limit=3)`: 3 Tickets insgesamt: #1 „Drucker im Demo-Büro“ (offen), #2 „Testzugang vorbereiten“ (in Bearbeitung), #3 „Demo-Handbuch ergänzen“ (geschlossen).\n- `get_ticket(id=1)`: „Drucker im Demo-Büro“, Status offen, Beschreibung: „Synthetisch: Papierfach prüfen.“",
+  "logout_requires_reauthorization_verified": true
+}
