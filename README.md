@@ -32,7 +32,37 @@ Host-Bindings für API/MCP: `127.0.0.1`. Docker veröffentlicht Keycloak auf `12
 
 ## Vorführen
 
-### 1. Echter Browser-Login und MCP-Aufruf
+### 1. API direkt lesen und schreiben
+
+Der direkte Client verwendet `api-demo-client` und meldet den Benutzer per Authorization Code + S256-PKCE bei Keycloak an. Er ruft die API direkt auf; MCP ist an diesem Weg nicht beteiligt. Tokens bleiben im jeweiligen Clientprozess und werden nicht ausgegeben.
+
+```sh
+./demo api list
+./demo api get 1
+./demo api create --title "Demo-Ticket" --description "Synthetisches Beispiel" --status OPEN
+```
+
+`list` entspricht `GET /tickets` (HTTP 200), `get 1` entspricht `GET /tickets/1`, `create` sendet `POST /tickets` (HTTP 201). Die Antwort enthält die neu erzeugte `id`. Diese ID für die folgenden Befehle einsetzen, hier beispielhaft `4`:
+
+```sh
+./demo api patch 4 --status IN_PROGRESS
+./demo api get 4
+./demo api delete 4
+./demo api list --status OPEN --offset 0 --limit 20
+```
+
+`patch` liefert HTTP 200, `delete` HTTP 204. Jeder Aufruf ist ein eigener Prozess mit einem frischen Login; es gibt keinen Token-Store. Für die wiederholbare lokale Demo kann das vorhandene Keycloak-Formular automatisch ausgefüllt werden. `--headless-login` steht beim API-Client **vor** dem Unterbefehl:
+
+```sh
+./demo api --headless-login list
+./demo api --headless-login create --title "Demo-Ticket" --description "Synthetisches Beispiel"
+```
+
+Auch dabei wird der echte PKCE-Codefluss benutzt. Für den manuellen Browser-Login: Benutzer `demo`, Passwort aus dem lokalen Feld `demo_password` in `.local/secrets.json`. Die Datei lokal öffnen, beispielsweise auf macOS mit `open -a TextEdit .local/secrets.json`; keine Werte in den Chat kopieren. Ein einfacher Browser-/curl-Aufruf von `/tickets` ohne Anmeldung liefert erwartungsgemäß 401. Der Client übernimmt die Bearer-Header intern.
+
+Befehlsoptionen: `./demo api --help`, `./demo api create --help`. CLI-Implementierung: [scripts/api_client.py](scripts/api_client.py).
+
+### 2. Echter Browser-Login und MCP-Aufruf
 
 ```sh
 ./demo client
@@ -40,15 +70,37 @@ Host-Bindings für API/MCP: `127.0.0.1`. Docker veröffentlicht Keycloak auf `12
 
 Der vorregistrierte Client `mcp-demo-client` öffnet Keycloak im Standardbrowser. Mit dem synthetischen Benutzer `demo` anmelden. Das lokal generierte Passwort steht im Feld `demo_password` in `.local/secrets.json`; diese Datei lokal öffnen. Der Client nimmt den OAuth-Callback entgegen, prüft `state` und `iss`, tauscht den Code mit dem PKCE-Verifier und ruft anschließend MCP `initialize`, `notifications/initialized`, `tools/list` und `list_tickets` auf. Ausgegeben werden nur Schemas und Ticketdaten. Access-Tokens bleiben im Prozessspeicher.
 
+Ein einzelnes Ticket und gefilterte Listen lassen sich direkt auswählen:
+
+```sh
+./demo client --ticket 1
+./demo client --status OPEN --offset 0 --limit 10
+```
+
+`--ticket` ruft nach Initialisierung und Tool-Auflistung `get_ticket` auf; ohne `--ticket` wird `list_tickets` aufgerufen. Der enthaltene Client spricht das echte MCP-Protokoll, verwendet aber selbst kein LLM.
+
 Für eine wiederholbare Vorführung ohne manuelles Ausfüllen:
 
 ```sh
 ./demo client --headless-login
+./demo client --headless-login --ticket 1
 ```
 
 Dieser Modus durchläuft denselben Authorization-Code-/PKCE-Fluss einschließlich Keycloak-Loginformular und tatsächlichem Loopback-Callback. Er verwendet **keinen Password Grant** und keine eingefügten Bearer-Tokens. Der reine HTTP-Formulartreiber behandelt Secure-Cookies ausschließlich für `http://localhost:8080` wie ein Browser auf localhost. Der interaktive Modus verwendet den Browser selbst.
 
-### 2. Vollständiger Rechtebeweis
+#### Externer Agent oder Inspector
+
+Der enthaltene Client ist bereits passend vorregistriert und live geprüft. Für einen anderen Client sind diese Werte relevant:
+
+- Transport **Streamable HTTP**, Server-URL `http://localhost:8082/mcp`.
+- OAuth-Discovery über die Resource Metadata; Issuer `http://localhost:8080/realms/mcp-demo`, Scope `mcp.access` und S256-PKCE.
+- Public OAuth-Client-ID `mcp-demo-client` hat aktuell ausschließlich den Callback `http://127.0.0.1:8765/callback` registriert. Ein externer Client muss genau diesen Callback unterstützen oder einen eigenen vorregistrierten Public Client mit passender exakter Redirect-URI, denselben MCP-Audience-/Rollenmappings und PKCE bekommen. Das vertrauliche Secret von `mcp-server` gehört nicht in den Agenten.
+- Ein Browserclient, der MCP direkt aufruft, benötigt zusätzlich passende ausdrücklich erlaubte Origin-/CORS-Einstellungen; die aktuelle Demo erlaubt keine beliebigen fremden Browser-Origins. Ein Inspector mit eigener Proxy-Komponente ist ebenfalls separat zu prüfen.
+- Der Client muss auf diesem Mac laufen oder dessen localhost-Netzwerk erreichen können. Ein Cloud-Agent kann dieses lokale `localhost` nicht ohne zusätzliche Netzwerkarchitektur erreichen.
+
+Externe Agenten-/Inspector-Integration ist bisher nicht getestet und nicht automatisch durch Eintragen der URL zugesichert. Die Server- und Keycloak-Konfiguration wurde hierfür nicht erweitert.
+
+### 3. Vollständiger Rechtebeweis
 
 ```sh
 ./demo test
@@ -64,11 +116,13 @@ Der Live-Test meldet jeden bestandenen Check. Er:
 6. prüft einen zweiten Benutzer und bereinigte Tool-Ergebnisse/Anwendungslogs;
 7. löscht das direkt erzeugte Ticket und stellt die drei Seed-Tickets wieder her.
 
+**Welche Tokens werden unterschieden?** Alle Tokens stellt Keycloak aus; die API erzeugt keine Tokens. Token A ist für Client → MCP bestimmt, Token B für MCP → API. Das direkte API-Token gehört zum separaten direkten Benutzerlogin und darf beim Benutzer `demo` zusätzlich schreiben. Praktisch belegen dies nicht nur unterschiedliche Strings oder Claims, sondern die Live-Ergebnisse: A an API → 401, API-Tokens an MCP → 401, B liest → 200, dieselbe im Test ausgestellte B-Instanz schreibt → 403 bei unveränderten Daten. Der Test prüft außerdem denselben Benutzer-`sub` und die begrenzten Rollen. Rohe JWTs oder Secrets werden nicht angezeigt.
+
 Die zusätzlichen Schreibversuche existieren ausschließlich im Testprozess. Der reguläre MCP-Server besitzt keine Schreibtools, kein Debug-Token-Tool und keinen generischen HTTP-Proxy. Das im Test separat angeforderte Token B entsteht über denselben Keycloak-Requester und dieselbe Policy wie die Backend-Tokens des MCP-Servers; kein Backend-Token wird aus dem Server exportiert.
 
 Das Ergebnis steht ohne Tokens/Secrets in `.local/verification.json`. Der Zeitpunkt gehört zum Ergebnis; ein neuer Lauf entfernt den alten Erfolgsbericht vorab. Der Live-Test setzt laufende Dienste voraus und ist vom Maven-Test getrennt.
 
-### 3. Reset, Stop und erneuter Start
+### 4. Reset, Stop und erneuter Start
 
 ```sh
 ./demo reset                    # API-Login im Browser, benötigt tickets.write
@@ -148,6 +202,7 @@ Der SDK-0.18-Zweig passt zum Spring-6-/Boot-3-Stack. Die separate Spring-AI-Schi
 - `mcp-server/`: geschützter MCP-Transport, Metadaten, zwei Tools, Token Exchange, feste Backend-Aufrufe.
 - `scripts/setup.py`: nachvollziehbare Realm-Konfiguration; erzeugt nur lokale Secrets/Importdateien.
 - `scripts/client.py`: kleiner realer OAuth-/MCP-Client mit Browser- und HTTP-Formularmodus.
+- `scripts/api_client.py`: direkter API-CRUD-Client mit demselben sicheren PKCE-Loginmechanismus.
 - `scripts/e2e.py`: Live-Abnahmematrix; alle Tokens bleiben im Prozess.
 - `scripts/demo.py`, `demo`: lokaler Start-/Stop-Helfer.
 
@@ -180,4 +235,4 @@ Die Java-Tests prüfen Claim-Validatoren, Clientrollen-Zuordnung, tatsächliche 
 - [MCP-Autorisierung](https://modelcontextprotocol.io/specification/latest/basic/authorization)
 - [Keycloak mit PostgreSQL](https://www.keycloak.org/server/db)
 
-Repository: [timsauer111/demo-mcp](https://github.com/timsauer111/demo-mcp), lokale Implementierung im Branch `codex/local-oauth-demo`. Kein Push und kein Deployment durch diesen Auftrag.
+Repository: [timsauer111/demo-mcp](https://github.com/timsauer111/demo-mcp), lokale Implementierung im Branch `codex/local-oauth-demo`. Quellcode wird auf ausdrücklichen Benutzerauftrag in dieses private GitHub-Repository gepusht. Laufzeit und Daten bleiben ausschließlich lokal; kein Deployment oder DNS-Eingriff.

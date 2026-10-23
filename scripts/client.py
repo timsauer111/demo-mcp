@@ -2,7 +2,6 @@
 """Small real OAuth+PKCE / Streamable HTTP MCP client; tokens stay in process RAM."""
 import argparse
 import base64
-from contextlib import contextmanager
 import hashlib
 from html.parser import HTMLParser
 import http.cookiejar
@@ -12,7 +11,6 @@ from pathlib import Path
 import re
 import secrets
 import threading
-import time
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlencode, urlparse
 import urllib.request
@@ -236,7 +234,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--headless-login', action='store_true', help='Automate the real Keycloak login form (local fixtures only)')
     parser.add_argument('--reset', action='store_true')
+    parser.add_argument('--ticket', type=int, metavar='ID', help='Call get_ticket instead of list_tickets')
+    parser.add_argument('--status', choices=['OPEN', 'IN_PROGRESS', 'CLOSED'], help='Filter list_tickets')
+    parser.add_argument('--offset', type=int, default=0, help='Offset for list_tickets')
+    parser.add_argument('--limit', type=int, default=20, help='Page size 1..100 for list_tickets')
     args = parser.parse_args()
+    if args.ticket is not None and args.ticket < 1:
+        parser.error('--ticket must be positive')
+    if args.offset < 0 or not 1 <= args.limit <= 100:
+        parser.error('--offset must be non-negative and --limit between 1 and 100')
+    if args.reset and (args.ticket is not None or args.status is not None or args.offset != 0 or args.limit != 20):
+        parser.error('--reset cannot be combined with tool arguments')
+    if args.ticket is not None and (args.status is not None or args.offset != 0 or args.limit != 20):
+        parser.error('--ticket cannot be combined with list filters')
     if args.reset:
         token = login('api-demo-client', headless=args.headless_login, resource=API)
         status, _, _ = request('POST', API + '/demo/reset', token=token)
@@ -248,7 +258,10 @@ def main():
     client = McpClient(token)
     client.initialize()
     print(json.dumps(client.call('tools/list'), ensure_ascii=False, indent=2))
-    result = client.tool('list_tickets', {'limit': 20})
+    arguments = {'offset': args.offset, 'limit': args.limit}
+    if args.status is not None:
+        arguments['status'] = args.status
+    result = client.tool('get_ticket', {'id': args.ticket}) if args.ticket is not None else client.tool('list_tickets', arguments)
     require(not result.get('isError'), 'Ticket read failed')
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
