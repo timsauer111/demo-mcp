@@ -28,6 +28,18 @@ Im Repository-Ordner:
 
 OAuth-Zugangsdaten werden von Codex im **Betriebssystem-Schlüsselbund** gespeichert (`mcp_oauth_credentials_store="keyring"`). Ein unverschlüsselter Datei-Fallback ist nicht konfiguriert. Login-Tokens dieses Standardclients sind damit gegenüber dem eigenen Python-Testclient bewusst persistent; `logout` entfernt die gespeicherten Codex-MCP-Zugangsdaten. Die Demo speichert sie weder in `.toml` noch unter `.local` oder im Repository.
 
+## Python-Auswahl bei Conda
+
+Der Originalbefehl `./demo agent run` funktioniert auch mit einer älteren aktivierten Conda-Base: Der Launcher prüft vor Projekt-Imports auf **Python 3.11+** und sucht im `PATH` sowie unter `/usr/local/bin`, `/opt/homebrew/bin` und `/usr/bin` nach einer bereits installierten geeigneten Version. Alle Python-Unterprozesse verwenden anschließend denselben Interpreter über `sys.executable`. Es wird nichts installiert und weder Conda noch die Shell-Konfiguration geändert.
+
+Optional lässt sich ein absoluter Interpreter-Pfad angeben:
+
+```sh
+DEMO_PYTHON=/absoluter/pfad/python3 ./demo agent run
+```
+
+Ein ungeeigneter expliziter Pfad führt zu einer verständlichen Mindestversionsmeldung. Fehlt eine passende Installation, Python 3.11 oder neuer installieren und den Befehl erneut ausführen. Die API-/MCP-Basisbefehle benötigen weiterhin mindestens Python 3.10.
+
 ## Agentenlauf
 
 ```sh
@@ -78,12 +90,14 @@ Zum vollständigen Stilllegen kann der eigene Public Client `codex-demo-client` 
 ## Prüfen und Fehler beheben
 
 ```sh
+# Für die Tests ausdrücklich einen Python-3.11+-Interpreter verwenden:
 python3 -m unittest discover -s scripts -p 'test_*.py' -v
 ./demo test
 ```
 
 Die bestehende Live-Sicherheitsmatrix prüft weiterhin Token-Audience-Isolation, echten Exchange, API-Schreibschutz und unveränderte Daten. Sie wird durch die Agentenanbindung nicht ersetzt. Details und tatsächlicher Integrationsstand stehen in [../docs/VERIFICATION.md](../docs/VERIFICATION.md).
 
+- **`ModuleNotFoundError: tomllib` mit älterem Checkout:** Den aktuellen `./demo`-Launcher verwenden. Direkte Aufrufe von `python3 scripts/agent_client.py` umgehen seine Interpreterauswahl; dafür ausdrücklich Python 3.11+ verwenden.
 - **Auth required / 401:** `./demo agent login` erneut ausführen. Ein Codex-Modelllogin ersetzt den Keycloak-MCP-Login nicht. Kurzlebige Access-Tokens und Keycloak-Sessions können ablaufen.
 - **Offline tokens not allowed / invalid_scope beim Refresh:** `./demo agent setup` und danach `./demo agent login` ausführen. Nur der synthetische `demo`-Benutzer ist für diese Integration vorbereitet.
 - **invalid_request / duplicated parameter:** kein zusätzliches `oauth_resource` in die projektbezogene Konfiguration aufnehmen; Codex setzt den Ressourcenparameter aus Discovery.

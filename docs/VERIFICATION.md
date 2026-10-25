@@ -67,3 +67,17 @@ Der Codex-Client benötigt `offline_access` für Refresh. Diese optionale Berech
 Nach **133 Sekunden** ohne Sitzungszugriff bei einer Access-Token-Laufzeit von **120 Sekunden** rief derselbe angemeldete Codex-Agent beide Tools erneut erfolgreich auf. Keycloak bestätigte dabei einen aktualisierten letzten Zugriff der Offline-Sitzung. Nach `./demo agent logout` scheiterte der erforderliche MCP-Start mit `Auth required`, ohne Tool-Aufruf; anschließend wurde Codex wieder angemeldet.
 
 Bereinigter Agentenbeleg: [agent-verification.json](agent-verification.json). Bedienung und Grenzen: [Integrationsanleitung](../integrations/README.md). Modellinferenz nutzt den vorhandenen OpenAI-Zugang mit synthetischen Ticketdaten; die vier Demo-Dienste bleiben auf diesem Mac. Kein Tunnel, keine DNS-Änderung und kein Deployment.
+
+
+## Conda-Startkorrektur am 25.10.2026
+
+Der gemeldete Fehler `ModuleNotFoundError: No module named 'tomllib'` wurde mit dem bisherigen Launcher und **Python 3.8.18 aus `/opt/anaconda3/bin` an erster PATH-Stelle** reproduziert. Der vorherige erfolgreiche Test unter Python 3.14.7 deckte diese Interpreterauswahl nicht ab.
+
+Der korrigierte Shell-Launcher prüft vor Projektimports die Mindestversion (Basisbefehle 3.10, Agent 3.11), sucht einen bereits vorhandenen geeigneten Interpreter und verwendet ihn durchgängig über `sys.executable`. Die tatsächliche Auswahl bei vorgeschaltetem Conda-Python war **`/opt/local/bin/python3.13`, Version 3.13.1**. Keine Paketinstallation und keine Änderungen an Conda, Shell-Konfiguration oder Authentifizierungsregeln.
+
+- Originalaufruf `./demo agent run` im TTY mit altem Conda-`python3` zuerst im PATH und zusätzlich im normalen PATH: jeweils **Exit 0**, beide echten MCP-Tools erfolgreich, synthetische Backend-Daten korrekt zusammengefasst.
+- **22/22 Python-Tests** einschließlich echter Shell-Launcher-Tests unter Python 3.13.1 bestanden: alter Interpreter wird übersprungen, Argumente und Interpreter für Kindprozesse bleiben erhalten, ungeeigneter expliziter Interpreter wird vor Projektimports verständlich abgewiesen.
+- `sh -n demo` und unabhängige Code-/Security-Reviews ohne bestätigte Befunde.
+- `./demo test` ebenfalls mit Conda-Python zuerst im PATH: erneut **59/59 Live-Sicherheitsprüfungen bestanden**. Der letzte bereinigte Bericht in `verification.json` wurde aktualisiert.
+
+Die nach zwei Tagen abgelaufene Keycloak-Anmeldung war ein getrenntes Folgeproblem (`invalid_grant: Token is not active`); sie wurde über denselben Browser-PKCE-Login erneuert. Bei späterem Sitzungsablauf bleibt `./demo agent login` der vorgesehene Weg. Die globalen Skill-Frontmatter-Warnungen verhinderten die erfolgreichen Agentenläufe nicht und wurden nicht verändert.

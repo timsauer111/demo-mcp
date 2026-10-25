@@ -6,7 +6,11 @@ Diese Demo zeigt denselben Benutzer auf zwei Zugriffswegen: Sein direktes API-To
 
 ## Starten
 
-Voraussetzungen: JDK 21, Python 3.10+, Docker mit Compose und laufendem Docker-Dienst. Maven wird durch den Wrapper heruntergeladen und per SHA-256 geprüft. Auf macOS wählt `./demo` automatisch ein installiertes JDK 21, wenn `JAVA_HOME` nicht gesetzt ist. Auf anderen Systemen ein JDK 21 im `PATH` verwenden oder `JAVA_HOME` setzen.
+Voraussetzungen: JDK 21, Python 3.10+, Docker mit Compose und laufendem Docker-Dienst.
+
+Für `./demo agent` ist Python **3.11+** erforderlich. Der Launcher prüft die Version vor dem Start und sucht bei einem zu alten Conda-`python3` nach einem geeigneten vorhandenen Interpreter im `PATH` sowie in üblichen macOS-Installationsverzeichnissen. Er verändert weder Conda noch den Benutzer-`PATH`. Mit `DEMO_PYTHON=/absoluter/pfad/python3 ./demo …` lässt sich ein geeigneter Interpreter ausdrücklich wählen. Fehlt er, erscheint eine kurze Mindestversionsmeldung statt eines Import-Tracebacks.
+
+Maven wird durch den Wrapper heruntergeladen und per SHA-256 geprüft. Auf macOS wählt `./demo` automatisch ein installiertes JDK 21, wenn `JAVA_HOME` nicht gesetzt ist. Auf anderen Systemen ein JDK 21 im `PATH` verwenden oder `JAVA_HOME` setzen.
 
 ```sh
 ./demo setup
@@ -213,6 +217,7 @@ Der SDK-0.18-Zweig passt zum Spring-6-/Boot-3-Stack. Die separate Spring-AI-Schi
 
 ```sh
 ./demo build
+# Hier ausdrücklich Python 3.11+ verwenden, auch bei aktivem Conda:
 python3 -m unittest discover -s scripts -p 'test_*.py' -v
 ./demo test
 ```

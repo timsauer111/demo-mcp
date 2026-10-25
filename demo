@@ -1,4 +1,41 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")"
-exec python3 scripts/demo.py "$@"
+
+# Conda can put an older python3 first in PATH. Check before any project import.
+minimum_minor=10
+if [ "${1-}" = agent ]; then
+    minimum_minor=11
+fi
+
+compatible_python() {
+    [ -x "$1" ] && "$1" -c "import sys; sys.exit(sys.version_info < (3, $minimum_minor))" >/dev/null 2>&1
+}
+
+if [ -n "${DEMO_PYTHON-}" ]; then
+    if compatible_python "$DEMO_PYTHON"; then
+        exec "$DEMO_PYTHON" scripts/demo.py "$@"
+    fi
+else
+    # Preserve PATH order, including installations shadowed by Conda. Also check
+    # the usual macOS installation directories without changing the user's PATH.
+    search_path=${PATH-}:/usr/local/bin:/opt/homebrew/bin:/usr/bin
+    while [ -n "$search_path" ]; do
+        directory=${search_path%%:*}
+        if [ "$search_path" = "$directory" ]; then
+            search_path=
+        else
+            search_path=${search_path#*:}
+        fi
+        directory=${directory:-.}
+        for name in python3 python3.15 python3.14 python3.13 python3.12 python3.11 python3.10; do
+            candidate=$directory/$name
+            if compatible_python "$candidate"; then
+                exec "$candidate" scripts/demo.py "$@"
+            fi
+        done
+    done
+fi
+
+echo "Python 3.$minimum_minor oder neuer erforderlich. Installiere eine passende Python-Version oder setze DEMO_PYTHON auf deren Interpreter-Pfad. Conda muss nicht geändert werden." >&2
+exit 1
