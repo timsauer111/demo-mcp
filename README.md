@@ -120,3 +120,31 @@ Der MCP-Server prüft zunächst das für ihn ausgestellte OAuth-Token. Für den 
 Der [technische Nachweis](docs/PUBLIC-DEMO-VERIFICATION.md) beschreibt einen Test mit einem tatsächlich ausgetauschten Token: Lesen war erfolgreich; POST, PATCH, DELETE und Reset wurden jeweils mit `403` abgewiesen und die Daten blieben unverändert. Das ist eine serverseitig durchgesetzte Grenze, keine bloße Anweisung an das Modell.
 
 Der Quellcode liegt in [mcp-server](mcp-server/), [ticket-api](ticket-api/) und [security-common](security-common/). Keycloak übernimmt die Authentifizierung und den Token-Austausch.
+
+## Architektur und Rechte
+
+```mermaid
+sequenceDiagram
+    participant C as OAuth-MCP-Client
+    participant K as Keycloak localhost:8080
+    participant M as MCP localhost:8082
+    participant A as API localhost:8081
+    C->>M: Ohne Token
+    M-->>C: 401 + resource_metadata + mcp.access
+    C->>K: Discovery, Login, Authorization Code + PKCE
+    K-->>C: Token A: MCP-Audiences, mcp.access
+    C->>M: MCP tools/call + Token A
+    M->>M: JWT: Signatur, iss, aud, exp, Clientrolle
+    M->>K: Standard V2 Token Exchange + Clientauthentifizierung
+    K-->>M: Token B: tickets-api, tickets.read, gleicher sub
+    M->>A: Festes GET + Token B
+    A->>A: JWT und tickets.read prüfen
+    A-->>M: Ticketdaten
+    M-->>C: Bereinigtes MCP-Ergebnis
+```
+
+| Weg / Client | Audience | Explizite Clientrollen |
+|---|---|---|
+| Direkt: `api-demo-client` | `tickets-api` | Benutzerabhängig `tickets.read` und `tickets.write` |
+| Token A: `mcp-demo-client` | `mcp-server` und `http://localhost:8082/mcp` | `resource_access.mcp-server.roles`: `mcp.access` |
+| Token B: vertraulicher `mcp-server` | exakt `tickets-api` | `resource_access.tickets-api.roles`: ausschließlich `tickets.read` |
