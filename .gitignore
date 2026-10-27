@@ -1,6 +1,7 @@
 /target/
 **/target/
 /.local/
+/.hosted/
 /.venv/
 .DS_Store
 *.log

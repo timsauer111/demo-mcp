@@ -1,9 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Local synthetic ticket API
+  title: Synthetic ticket API
   version: 0.1.0
   description: Client roles in resource_access.tickets-api.roles control access, not the scope string.
 servers:
+  - url: https://srv1424016.hstgr.cloud/api
   - url: http://localhost:8081
 security:
   - keycloak: []
@@ -97,8 +98,8 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: http://localhost:8080/realms/mcp-demo/protocol/openid-connect/auth
-          tokenUrl: http://localhost:8080/realms/mcp-demo/protocol/openid-connect/token
+          authorizationUrl: https://srv1424016.hstgr.cloud/auth/realms/mcp-demo/protocol/openid-connect/auth
+          tokenUrl: https://srv1424016.hstgr.cloud/auth/realms/mcp-demo/protocol/openid-connect/token
           scopes:
             tickets.read: Read tickets (client role also required)
             tickets.write: Write tickets (client role also required)

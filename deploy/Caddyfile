@@ -1,0 +1,59 @@
+{
+    admin off
+    servers {
+        strict_sni_host on
+    }
+    # Runtime errors can otherwise contain complete OAuth query strings.
+    log default {
+        format filter {
+            request>uri delete
+            request>headers delete
+        }
+    }
+}
+
+{$PUBLIC_HOST} {
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+    }
+    request_body {
+        max_size 1MB
+    }
+    @registration path /auth/realms/mcp-demo/clients-registrations/openid-connect /auth/realms/mcp-demo/clients-registrations/openid-connect/*
+    handle @registration {
+        reverse_proxy mcp-server:8082 {
+            header_up -Forwarded
+        }
+    }
+    @otherRegistrations path /auth/realms/mcp-demo/clients-registrations/*
+    handle @otherRegistrations {
+        respond "Not found" 404
+    }
+    handle_path /api/* {
+        reverse_proxy ticket-api:8081 {
+            header_up -Forwarded
+            header_down Location ^/ /api/
+        }
+    }
+    @mcp path /mcp /health /.well-known/oauth-protected-resource /.well-known/oauth-protected-resource/mcp
+    handle @mcp {
+        reverse_proxy mcp-server:8082 {
+            flush_interval -1
+            header_up -Forwarded
+        }
+    }
+    # Only the demo realm and login assets are public. Admin/master remain private.
+    @login path /auth/realms/mcp-demo/* /auth/resources/*
+    handle @login {
+        reverse_proxy keycloak:8080 {
+            header_up -Forwarded
+            header_up X-Forwarded-Port 443
+            header_up -X-Forwarded-Prefix
+        }
+    }
+    handle {
+        respond "MCP ticket demo. Connect at /mcp." 404
+    }
+}

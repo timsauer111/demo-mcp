@@ -9,11 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 class MetadataController {
     private final String issuer;
-    MetadataController(@Value("${demo.issuer}") String issuer) { this.issuer = issuer; }
+    private final McpEndpoint endpoint;
+    MetadataController(@Value("${demo.issuer}") String issuer, McpEndpoint endpoint) {
+        this.issuer = issuer;
+        this.endpoint = endpoint;
+    }
     @GetMapping("/health") Map<String, String> health() { return Map.of("status", "UP"); }
     @GetMapping({"/.well-known/oauth-protected-resource", "/.well-known/oauth-protected-resource/mcp"})
     Map<String, Object> metadata() {
-        return Map.of("resource", McpSecurity.RESOURCE, "authorization_servers", List.of(issuer),
+        return Map.of("resource", endpoint.resource(), "authorization_servers", List.of(issuer),
             "scopes_supported", List.of("mcp.access"), "bearer_methods_supported", List.of("header"));
     }
 }

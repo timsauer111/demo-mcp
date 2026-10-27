@@ -1,5 +1,7 @@
 # Verifikation der lokalen Demo
 
+Dieser Bericht dokumentiert den früheren lokalen Stand. Den aktuellen gehosteten Aufbau und seine neu ausgeführten Prüfungen beschreibt [HOSTED-VERIFICATION.md](HOSTED-VERIFICATION.md).
+
 Geprüft am **23.10.2026**, lokal auf diesem Mac mit JDK 21.0.8, Docker und den im Repository festgelegten Versionen. Kein Deployment und keine DNS-Änderung. Der Quellcode-Push ist anschließend ausdrücklich vom Benutzer beauftragt worden.
 
 | Prüfebene | Tatsächlich ausgeführt | Ergebnis |

@@ -7,6 +7,7 @@ from html.parser import HTMLParser
 import http.cookiejar
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import os
 from pathlib import Path
 import re
 import secrets
@@ -17,9 +18,10 @@ import urllib.request
 import webbrowser
 
 ROOT = Path(__file__).resolve().parents[1]
-ISSUER = 'http://localhost:8080/realms/mcp-demo'
-API = 'http://localhost:8081'
-MCP = 'http://localhost:8082/mcp'
+ISSUER = os.environ.get('DEMO_ISSUER', 'http://localhost:8080/realms/mcp-demo')
+API = os.environ.get('DEMO_API', 'http://localhost:8081')
+MCP = os.environ.get('DEMO_MCP', 'http://localhost:8082/mcp')
+SECRETS_FILE = Path(os.environ.get('DEMO_SECRETS_FILE', str(ROOT / '.local/secrets.json')))
 CALLBACK = 'http://127.0.0.1:8765/callback'
 
 
@@ -35,8 +37,10 @@ def require(condition, label):
 class SafeRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         parsed = urlparse(newurl)
-        require((parsed.scheme, parsed.netloc) in [('http', 'localhost:8080'), ('http', '127.0.0.1:8765')],
-                'OAuth redirect outside local allowlist')
+        issuer = urlparse(ISSUER)
+        require((parsed.scheme, parsed.netloc) == (issuer.scheme, issuer.netloc)
+                or (parsed.scheme, parsed.netloc, parsed.path) == ('http', '127.0.0.1:8765', '/callback'),
+                'OAuth redirect outside configured issuer and loopback callback')
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -79,7 +83,7 @@ def discover():
     require(status == 401, 'MCP must challenge unauthenticated requests')
     challenge = headers.get('WWW-Authenticate', '')
     match = re.search(r'resource_metadata="([^"]+)"', challenge)
-    expected = 'http://localhost:8082/.well-known/oauth-protected-resource/mcp'
+    expected = MCP.removesuffix('/mcp') + '/.well-known/oauth-protected-resource/mcp'
     require(match is not None and match.group(1) == expected, 'Invalid resource metadata challenge')
     resource = document(expected)
     require(resource.get('resource') == MCP and resource.get('authorization_servers') == [ISSUER], 'Resource metadata mismatch')
@@ -167,7 +171,7 @@ def login(client='mcp-demo-client', user='demo', headless=False, resource=MCP):
             parser = LoginForm()
             parser.feed(html.decode())
             require(parser.action and parser.action.startswith(ISSUER + '/login-actions/'), 'Unexpected login form')
-            local = json.loads((ROOT / '.local/secrets.json').read_text())
+            local = json.loads(SECRETS_FILE.read_text())
             fields = {**parser.fields, 'username': user, 'password': local[user + '_password']}
             status, _, _ = request('POST', parser.action, form=fields, opener=opener)
             require(status == 200, 'Keycloak login failed')

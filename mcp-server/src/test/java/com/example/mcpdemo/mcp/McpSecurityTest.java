@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(properties = "demo.client-secret=nonfunctional-unit-fixture")
 @AutoConfigureMockMvc
 class McpSecurityTest {
+    private static final McpEndpoint ENDPOINT = new McpEndpoint("http://localhost:8082/mcp");
     @Autowired MockMvc mvc;
     @MockitoBean JwtDecoder decoder;
     @MockitoBean TokenExchange exchange;
@@ -35,12 +36,12 @@ class McpSecurityTest {
     }
     @Test void challengesEveryTransportMethodWithoutAuthentication() throws Exception {
         for (var req : List.of(post("/mcp"), get("/mcp"), delete("/mcp"))) {
-            mvc.perform(req).andExpect(status().isUnauthorized()).andExpect(header().string("WWW-Authenticate", McpSecurity.CHALLENGE));
+            mvc.perform(req).andExpect(status().isUnauthorized()).andExpect(header().string("WWW-Authenticate", ENDPOINT.challenge()));
         }
     }
     @Test void publishesBoundResourceMetadata() throws Exception {
         mvc.perform(get("/.well-known/oauth-protected-resource/mcp")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.resource").value(McpSecurity.RESOURCE))
+            .andExpect(jsonPath("$.resource").value(ENDPOINT.resource()))
             .andExpect(jsonPath("$.scopes_supported[0]").value("mcp.access"));
     }
     @Test void rejectsMissingRoleAndInvalidToken() throws Exception {

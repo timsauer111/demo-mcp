@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 # Conda can put an older python3 first in PATH. Check before any project import.
 minimum_minor=10
-if [ "${1-}" = agent ]; then
+if [ "${1-}" = agent ] || [ "${1-}" = hosted ]; then
     minimum_minor=11
 fi
 

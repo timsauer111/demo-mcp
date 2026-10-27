@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Live acceptance matrix against Keycloak, API and MCP. Never serialize tokens."""
 import json
+import os
 from pathlib import Path
+import re
+import subprocess
 import time
 from datetime import datetime, timezone
-from client import API, MCP, ISSUER, ROOT, DemoError, McpClient, claims, discover, login, request, require
+from client import API, MCP, ISSUER, ROOT, SECRETS_FILE, DemoError, McpClient, claims, discover, login, request, require
 
 RESULTS = []
 TOKENS = []
@@ -34,7 +37,7 @@ def issue(client='mcp-demo-client', user='demo', resource=MCP):
 
 
 def exchange(subject, scope=None, audience='tickets-api'):
-    config = json.loads((ROOT / '.local/secrets.json').read_text())
+    config = json.loads(SECRETS_FILE.read_text())
     form = {'grant_type': 'urn:ietf:params:oauth:grant-type:token-exchange',
             'subject_token': subject, 'subject_token_type': 'urn:ietf:params:oauth:token-type:access_token',
             'requested_token_type': 'urn:ietf:params:oauth:token-type:access_token', 'audience': audience}
@@ -61,7 +64,8 @@ def cannot_write(token, label):
 
 
 def run():
-    (ROOT / '.local/verification.json').unlink(missing_ok=True)
+    report_path = SECRETS_FILE.parent / 'verification.json'
+    report_path.unlink(missing_ok=True)
     discover()
     check(True, 'MCP 401 challenge -> protected-resource metadata -> Keycloak discovery')
     direct = issue('api-demo-client', resource=API)
@@ -147,22 +151,28 @@ def run():
 
         check(request('POST', MCP, token=subject, body={}, headers={'Origin': 'https://attacker.invalid'})[0] == 403,
               'MCP rejects untrusted browser Origin')
-        check(request('POST', MCP, token=subject, body={}, headers={'Host': 'attacker.invalid'})[0] == 400,
+        check(request('POST', MCP, token=subject, body={}, headers={'Host': 'attacker.invalid'})[0] in (400, 421),
               'MCP rejects untrusted Host')
         check(api('DELETE', '/tickets/' + str(marker), direct)[0] == 204, 'Direct API token deletes -> 204')
         check(api('GET', '/tickets/' + str(marker), direct)[0] == 404, 'Direct deletion actually removes the ticket')
         rendered = json.dumps(outputs)
-        local = json.loads((ROOT / '.local/secrets.json').read_text())
+        local = json.loads(SECRETS_FILE.read_text())
         check(not any(value in rendered for value in [*TOKENS, *local.values()]), 'No issued tokens or local secrets in MCP schemas or results')
-        logs = ''.join(p.read_text(errors='replace') for p in (ROOT / '.local').glob('*.log'))
+        log_host = os.environ.get('DEMO_LOG_SSH_HOST')
+        if log_host:
+            require(re.fullmatch(r'[a-zA-Z0-9_][a-zA-Z0-9_.@-]*', log_host), 'Invalid log SSH host')
+            logs = subprocess.check_output(['ssh', '-o', 'BatchMode=yes', log_host,
+                'cd /opt/mcp-demo && docker compose -f compose.hosted.yaml --env-file .hosted/docker.env logs --no-color'], text=True)
+        else:
+            logs = ''.join(p.read_text(errors='replace') for p in SECRETS_FILE.parent.glob('*.log'))
         check(not any(value in logs for value in [*TOKENS, *local.values()]), 'No issued tokens or local secrets in application logs')
     finally:
         require(api('POST', '/demo/reset', direct)[0] == 204, 'Final reset failed')
     check(ticket_data(direct)['total'] == 3, 'Acceptance run leaves the three fixed seed tickets')
-    report = {'executed_at': datetime.now(timezone.utc).isoformat(), 'mode': 'live-local-http-form-login-pkce',
+    report = {'executed_at': datetime.now(timezone.utc).isoformat(), 'mode': 'live-http-form-login-pkce', 'mcp': MCP,
               'checks': RESULTS, 'total': len(RESULTS), 'passed': len(RESULTS)}
-    (ROOT / '.local/verification.json').write_text(json.dumps(report, indent=2) + '\n')
-    print(str(len(RESULTS)) + ' live checks passed. Sanitized report: .local/verification.json')
+    report_path.write_text(json.dumps(report, indent=2) + '\n')
+    print(str(len(RESULTS)) + ' live checks passed. Sanitized report: ' + str(report_path))
 
 
 if __name__ == '__main__':

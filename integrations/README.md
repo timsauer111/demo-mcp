@@ -1,5 +1,7 @@
 # Lokaler Codex-Agent über Streamable HTTP
 
+Für die **gehostete Verbindung** in einer normalen Codex-Session siehe die [Haupt-README](../README.md#in-der-codex-app-als-benutzerdefinierten-mcp-hinzufügen) und [codex-hosted.toml](codex-hosted.toml). Die folgenden Schritte betreffen ausschließlich den getrennten lokalen Entwicklungsserver.
+
 Diese Integration verbindet einen eigenständigen Codex-CLI-Agenten direkt mit dem Java-MCP-Server auf diesem Mac. Sie verwendet echte OAuth-Discovery, einen vorregistrierten Public Client und Authorization Code + S256-PKCE. Es gibt keinen Bearer-Token zum Kopieren und keinen stdio-Proxy.
 
 ## Voraussetzungen

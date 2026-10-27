@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / '.local'
 
 
-def realm_config(values):
+def realm_config(values, resource='http://localhost:8082/mcp'):
     def mapper(name, kind, config):
         return {'name': name, 'protocol': 'openid-connect', 'protocolMapper': kind,
                 'consentRequired': False, 'config': config}
@@ -34,7 +34,7 @@ def realm_config(values):
         result = [subject(), audience('tickets-api' if api else 'mcp-server')]
         if not api:
             result.append(mapper('resource-audience', 'oidc-audience-mapper', {
-                'included.custom.audience': 'http://localhost:8082/mcp',
+                'included.custom.audience': resource,
                 'access.token.claim': 'true', 'id.token.claim': 'false'}))
         return result
 

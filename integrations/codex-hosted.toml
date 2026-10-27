@@ -1,0 +1,11 @@
+# Public configuration. No tokens or confidential client secret.
+[mcp_servers.ticket_demo_hosted]
+url = "https://srv1424016.hstgr.cloud/mcp"
+scopes = ["mcp.access", "offline_access"]
+startup_timeout_sec = 30
+tool_timeout_sec = 30
+
+[mcp_servers.ticket_demo_hosted.oauth]
+client_id = "codex-demo-client"
+callback_url = "http://127.0.0.1:8766/callback"
+callback_port = 8766

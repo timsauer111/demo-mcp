@@ -1,0 +1,103 @@
+name: mcp-demo-hosted
+
+x-java: &java
+  # Reuse Keycloak's Java runtime to avoid a second large image on the small VPS.
+  image: quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b
+  entrypoint: ["java"]
+  command: ["-Xms32m", "-Xmx192m", "-jar", "/app/app.jar"]
+  read_only: true
+  tmpfs: ["/tmp:size=64m,mode=1777"]
+  cap_drop: ["ALL"]
+  security_opt: ["no-new-privileges:true"]
+  mem_limit: 384m
+  restart: unless-stopped
+  logging: &logs
+    driver: json-file
+    options: {max-size: "5m", max-file: "2"}
+
+services:
+  caddy:
+    image: ${CADDY_IMAGE:?Run hosted setup}
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?Run hosted setup}
+    ports:
+      # Bind only the public interface; preserve the existing Tailscale listener.
+      - "${PUBLIC_IP:?Run hosted setup}:80:80"
+      - "${PUBLIC_IP:?Run hosted setup}:443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      default:
+        aliases: ["${PUBLIC_HOST}"]
+    restart: unless-stopped
+    mem_limit: 128m
+    logging: *logs
+  postgres:
+    image: ${POSTGRES_IMAGE:?Run hosted setup}
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Run hosted setup}
+    volumes:
+      - keycloak-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    mem_limit: 256m
+    logging: *logs
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b
+    command: ["start", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${DB_PASSWORD:?Run hosted setup}
+      KC_BOOTSTRAP_ADMIN_USERNAME: hosted-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Run hosted setup}
+      KC_HOSTNAME: https://${PUBLIC_HOST}/auth
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      JAVA_OPTS_KC_HEAP: "-Xms128m -Xmx384m"
+    volumes:
+      - ./.hosted/realm.json:/opt/keycloak/data/import/mcp-demo-realm.json:ro
+    # Administrative maintenance is possible only over SSH/loopback.
+    ports: ["127.0.0.1:18080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 768m
+    logging: *logs
+  ticket-api:
+    <<: *java
+    environment:
+      SERVER_ADDRESS: 0.0.0.0
+      DEMO_ISSUER: https://${PUBLIC_HOST}/auth/realms/mcp-demo
+    volumes:
+      - ./.hosted/ticket-api.jar:/app/app.jar:ro
+    ports: ["127.0.0.1:18081:8081"]
+  mcp-server:
+    <<: *java
+    environment:
+      SERVER_ADDRESS: 0.0.0.0
+      DEMO_RESOURCE: https://${PUBLIC_HOST}/mcp
+      DEMO_ISSUER: https://${PUBLIC_HOST}/auth/realms/mcp-demo
+      DEMO_API_BASE: http://ticket-api:8081
+      DEMO_REGISTRATION_BASE: http://keycloak:8080/auth/realms/mcp-demo/clients-registrations/openid-connect
+      MCP_CLIENT_SECRET: ${MCP_CLIENT_SECRET:?Run hosted setup}
+    volumes:
+      - ./.hosted/mcp-server.jar:/app/app.jar:ro
+    depends_on: [ticket-api, keycloak]
+
+volumes:
+  keycloak-data:
+  caddy-data:
+  caddy-config:

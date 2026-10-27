@@ -1,0 +1,977 @@
+{
+  "verified_at": "2026-10-27T12:36:25.667773+00:00",
+  "mcp": "https://srv1424016.hstgr.cloud/mcp",
+  "api": "https://srv1424016.hstgr.cloud/api",
+  "java_tests": {
+    "passed": 26,
+    "failed": 0
+  },
+  "python_tests": {
+    "passed": 40,
+    "failed": 0
+  },
+  "public_rights_matrix": {
+    "executed_at": "2026-10-27T10:32:31.570968+00:00",
+    "mode": "live-http-form-login-pkce",
+    "mcp": "https://srv1424016.hstgr.cloud/mcp",
+    "checks": [
+      {
+        "check": "MCP 401 challenge -> protected-resource metadata -> Keycloak discovery",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct API and MCP login represent the same demo user",
+        "result": "PASS"
+      },
+      {
+        "check": "Authorized deterministic reset",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct API token reads fixed seed data",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct API token creates a ticket -> 201",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct API token updates a ticket -> 200",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct write is persisted in the API store",
+        "result": "PASS"
+      },
+      {
+        "check": "Real Keycloak Standard V2 Token Exchange succeeds",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchanged token preserves user subject",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchanged token has exactly the API read role (supplementary claims check)",
+        "result": "PASS"
+      },
+      {
+        "check": "The exact exchanged token reads real API data",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: unchanged after POST /tickets",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: unchanged after PATCH /tickets/1",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: unchanged after DELETE /tickets/1",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact exchanged token B: unchanged after POST /demo/reset",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP initialize and initialized notification succeed over HTTP",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP publishes exactly the two curated tools",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP list_tickets returns the ticket just written through the actual API",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP get_ticket matches the actual API record exactly",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects invalid or missing input: list_tickets url",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects invalid or missing input: list_tickets limit",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects invalid or missing input: get_ticket id",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects invalid or missing input: get_ticket id",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects invalid or missing input: get_ticket id",
+        "result": "PASS"
+      },
+      {
+        "check": "Token A at API rejected for wrong audience -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct API token at MCP rejected for wrong audience -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchanged API token B at MCP rejected for wrong audience -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "missing token at API -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "missing token at MCP -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "malformed token at API -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "malformed token at MCP -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "bad signature token at API -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "bad signature token at MCP -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchange handles unauthorized scope request: tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Keycloak denies scope elevation: tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchange handles unauthorized scope request: tickets.read tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Keycloak denies scope elevation: tickets.read tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchange handles unauthorized scope request: offline_access tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Keycloak denies scope elevation: offline_access tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Exchange handles unauthorized scope request: roles tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Keycloak denies scope elevation: roles tickets.write",
+        "result": "PASS"
+      },
+      {
+        "check": "Second user context remains distinct across exchange",
+        "result": "PASS"
+      },
+      {
+        "check": "Second user can use MCP without cross-user token reuse",
+        "result": "PASS"
+      },
+      {
+        "check": "Valid MCP audience without MCP role -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Valid API audience without API role -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Valid API audience without write role -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "Real expired Keycloak token at MCP -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "Real expired Keycloak token with correct API audience -> 401",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects untrusted browser Origin",
+        "result": "PASS"
+      },
+      {
+        "check": "MCP rejects untrusted Host",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct API token deletes -> 204",
+        "result": "PASS"
+      },
+      {
+        "check": "Direct deletion actually removes the ticket",
+        "result": "PASS"
+      },
+      {
+        "check": "No issued tokens or local secrets in MCP schemas or results",
+        "result": "PASS"
+      },
+      {
+        "check": "No issued tokens or local secrets in application logs",
+        "result": "PASS"
+      },
+      {
+        "check": "Acceptance run leaves the three fixed seed tickets",
+        "result": "PASS"
+      }
+    ],
+    "total": 59,
+    "passed": 59
+  },
+  "public_oauth_registration_and_api_callbacks": {
+    "executed_at": "2026-10-27T12:35:41.605072+00:00",
+    "mode": "public-dcr-and-real-pkce-form-login",
+    "mcp": "https://srv1424016.hstgr.cloud/mcp",
+    "checks": [
+      {
+        "check": "DCR rejects forbidden registration: redirect_uris",
+        "result": "PASS"
+      },
+      {
+        "check": "DCR rejects forbidden registration: redirect_uris",
+        "result": "PASS"
+      },
+      {
+        "check": "DCR rejects forbidden registration: redirect_uris",
+        "result": "PASS"
+      },
+      {
+        "check": "DCR rejects forbidden registration: scope",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: https://chatgpt.com/connector_platform_oauth_redirect (client_secret_basic)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: https://claude.ai/api/mcp/auth_callback (none)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: https://gemini.google.com/callback (none)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: https://another-client.example/callback (none)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: http://localhost:54321/callback (none)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: http://127.0.0.1:54322/oauth/callback (none)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "App DCR creates a fresh client: http://[::1]:54323/callback (none)",
+        "result": "PASS"
+      },
+      {
+        "check": "Registration update cannot introduce remote HTTP callbacks",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token is bound to the MCP resource and role",
+        "result": "PASS"
+      },
+      {
+        "check": "New app token A is rejected directly at the backend",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client cannot use a password grant",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client sees exactly the two read tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client executes both real MCP tools",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /tickets -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: PATCH /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after PATCH",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: DELETE /tickets/1 -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after DELETE",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact new-app exchange token: POST /demo/reset -> 403",
+        "result": "PASS"
+      },
+      {
+        "check": "New-app data unchanged after POST",
+        "result": "PASS"
+      },
+      {
+        "check": "Registered app cannot add a write scope later",
+        "result": "PASS"
+      },
+      {
+        "check": "Test app registration removed without changing other clients",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "Public REST API login supports registered Postman callback: https://oauth.pstmn.io/v1/callback",
+        "result": "PASS"
+      },
+      {
+        "check": "Public API token creates a ticket with the public Location path",
+        "result": "PASS"
+      },
+      {
+        "check": "Public API token updates its synthetic ticket",
+        "result": "PASS"
+      },
+      {
+        "check": "Public API token deletes its synthetic ticket",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: plain",
+        "result": "PASS"
+      },
+      {
+        "check": "New app client rejects absent or plain PKCE: None",
+        "result": "PASS"
+      },
+      {
+        "check": "Fresh app client completes PKCE and receives refresh credentials",
+        "result": "PASS"
+      },
+      {
+        "check": "Public REST API login supports registered Postman callback: https://oauth.pstmn.io/v1/browser-callback",
+        "result": "PASS"
+      },
+      {
+        "check": "Public API token creates a ticket with the public Location path",
+        "result": "PASS"
+      },
+      {
+        "check": "Public API token updates its synthetic ticket",
+        "result": "PASS"
+      },
+      {
+        "check": "Public API token deletes its synthetic ticket",
+        "result": "PASS"
+      },
+      {
+        "check": "No new-app credentials or issued tokens in container logs",
+        "result": "PASS"
+      }
+    ],
+    "passed": 159,
+    "total": 159
+  },
+  "claude_web": {
+    "verified": true,
+    "flow": "Existing custom connector -> Reconnect -> Keycloak sign-in -> consent -> Claude connector connected",
+    "tools_shown_as_read_only": [
+      "get_ticket",
+      "list_tickets"
+    ],
+    "actual_ui_tool_calls": [
+      {
+        "tool": "list_tickets",
+        "arguments": {
+          "limit": 3
+        },
+        "ticket_count": 3
+      },
+      {
+        "tool": "get_ticket",
+        "arguments": {
+          "id": 1
+        },
+        "ticket_id": 1
+      }
+    ],
+    "proof": "Expanded Claude Web tool request and response panels inspected"
+  },
+  "gemini_web": {
+    "verified": false,
+    "reason": "Available account does not expose custom MCP apps"
+  },
+  "additional_native_checks": {
+    "claude_code": {
+      "executed_at": "2026-10-27T10:34:36.121547+00:00",
+      "client": "Claude Code 2.1.309",
+      "checks": [
+        "Native CLI DCR and Authorization Code + S256 PKCE through Keycloak login and consent",
+        "Native authenticated MCP connection reports Connected"
+      ]
+    },
+    "gemini_oauth_module": {
+      "executed_at": "2026-10-27T10:36:56.441Z",
+      "client": "Gemini CLI 0.33.1 OAuth module and bundled MCP SDK",
+      "checks": [
+        "Native Gemini CLI 0.33.1 OAuth module: discovery, DCR, PKCE, local callback and token exchange",
+        "Gemini bundled MCP SDK: initialization, exactly two read tools and both successful tool calls"
+      ]
+    }
+  },
+  "deployed_artifacts": {
+    "matched": true,
+    "artifacts": [
+      {
+        "sha256": "c63225cb675405eaf0d6437457f6588c7b0a38defe6be4d99b5b4e0937f8e594",
+        "module": "ticket-api"
+      },
+      {
+        "sha256": "9b38af92e380e50699be7c3ad68c2143942e0a901550635f233280aed57a0751",
+        "module": "mcp-server"
+      }
+    ]
+  },
+  "secret_scan": {
+    "working_tree_findings": 0,
+    "git_history_findings": 0
+  },
+  "source_sha256": {
+    "README.md": "f1ecb0afbdbeba4bdfec5f2f4fb6aa2dd80826a8e55c529fe1fbd241dc6c3edd",
+    "compose.hosted.yaml": "b23178fe12fa8f2d7a7a80c35a9424ad3ed4a81c7bb6b4a9ffed7087b1d13f74",
+    "deploy/Caddyfile": "e573eb8ebe98fa9eb7cde9c4c5b74ca99d6be13296f6f90240ef3ae0be5141d1",
+    "scripts/hosted_registration.py": "139c75fe6636779413ba609f84f40e7118b55f4969b2b1bc4ac55f0a8703eef8",
+    "scripts/verify_hosted_registration.py": "dede17ae6b248c4ca4287ecaffe08f488cc7e63ed9ef59e0907f7f3b09b82ebf",
+    "mcp-server/src/main/java/com/example/mcpdemo/mcp/RegistrationController.java": "e29a1c2de042482489420d29ac4ec918ebb6f9ac03b8a702061421253ab2d17c",
+    "mcp-server/src/main/java/com/example/mcpdemo/mcp/McpSecurity.java": "6ce9b5d3160bd1f8c79827228807c14e52e6e89bea9a7b727198f8031ab95f71"
+  },
+  "transport_note": "Latest public OAuth/API checks use verified HTTPS over IPv4; the local network stalls when attempting IPv6."
+}
